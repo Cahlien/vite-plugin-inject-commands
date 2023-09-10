@@ -1,6 +1,6 @@
 {
   "name": "@cahlien/vite-plugin-inject-commands",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A module to run executables and shell commands during the Vite lifecycle.",
   "main": "src/index.js",
   "type": "module",

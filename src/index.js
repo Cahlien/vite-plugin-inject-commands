@@ -70,8 +70,6 @@ async function runShellCommand(executableToRun, args, command, ...hookArgs) {
 async function runExecutableCommand(executor, executableToRun, args, ...hookArgs) {
     return new Promise((resolve, reject) => {
         const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} ${hookArgs ? hookArgs.join(' ') : ''}`
-            .filter(Boolean)
-            .join(' ')
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
