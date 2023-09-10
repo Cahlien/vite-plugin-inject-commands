@@ -47,16 +47,18 @@ async function findExecutables(executableDirectories, fileList = []) {
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
 async function runShellCommand(executableToRun, args, command, hookArgs, configString) {
-    const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
-    const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
+    return new Promise((resolve, reject) => {  // <-- Promise wrapper starts here
+        const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
+        const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
 
-    exec(commandString, (error, stdout, stderr) => {
-        if (error) {
-            reject(`Error: ${error}, stderr: ${stderr}`)
-        } else {
-            resolve(stdout)
-        }
-    })
+        exec(commandString, (error, stdout, stderr) => {
+            if (error) {
+                reject(`Error: ${error}, stderr: ${stderr}`);
+            } else {
+                resolve(stdout);
+            }
+        });
+    });
 }
 
 /**
@@ -70,16 +72,17 @@ async function runShellCommand(executableToRun, args, command, hookArgs, configS
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
 async function runExecutableCommand(executor, executableToRun, args, hookArgs, configString) {
-    const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
-    const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
+    return new Promise((resolve, reject) => {  // <-- Promise wrapper starts here
+        const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
+        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
 
-
-    exec(commandString, (error, stdout, stderr) => {
-        if (error) {
-            reject(`Error: ${error}, stderr: ${stderr}`)
-        } else {
-            resolve(stdout)
-        }
+        exec(commandString, (error, stdout, stderr) => {
+            if (error) {
+                reject(`Error: ${error}, stderr: ${stderr}`)
+            } else {
+                resolve(stdout)
+            }
+        })
     })
 }
 
