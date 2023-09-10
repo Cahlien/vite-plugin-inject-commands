@@ -42,11 +42,12 @@ async function findExecutables(executableDirectories, fileList = []) {
  * @param {string} executableToRun - The executable file to run.
  * @param {string[]} args - The arguments to pass to the executable.
  * @param {string} command - The actual command to run.
+ * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runShellCommand(executableToRun, args, command) {
+async function runShellCommand(executableToRun, args, command, ...hookArgs) {
     return new Promise((resolve, reject) => {
-        const commandString = `${command} ${args ? args.join(' ') : ''}`
+        const commandString = `${command} ${args ? args.join(' ') : ''} ${hookArgs ? hookArgs.join(' ') : ''}`
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
                 reject(`Error: ${error}, stderr: ${stderr}`)
@@ -63,15 +64,12 @@ async function runShellCommand(executableToRun, args, command) {
  * @param {string} executor - The executor to use (e.g., "python", "node").
  * @param {string} executableToRun - The executable to run.
  * @param {string[]} args - The arguments to pass to the executable.
+ * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runExecutableCommand(executor, executableToRun, args) {
+async function runExecutableCommand(executor, executableToRun, args, ...hookArgs) {
     return new Promise((resolve, reject) => {
-        const commandString = [
-            executor ? `"${executor}"` : '',
-            `"${executableToRun}"`,
-            args ? args.map((arg) => `"${arg}"`).join(' ') : ''
-        ]
+        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} ${hookArgs ? hookArgs.join(' ') : ''}`
             .filter(Boolean)
             .join(' ')
 
@@ -90,8 +88,9 @@ async function runExecutableCommand(executor, executableToRun, args) {
  *
  * @param {Object[]} executables - List of executables to run, each being an object with `command`, `args`, and `executor`.
  * @param {string[]} directoriesToSearch - Directories where to search for the executables.
+ * @param hookArgs - The arguments passed by the hook.
  */
-async function execute(executables, directoriesToSearch) {
+async function execute(executables, directoriesToSearch, hookArgs) {
     const foundExecutables = await findExecutables(directoriesToSearch)
 
     for (const { command, args, executor } of executables) {
@@ -99,14 +98,14 @@ async function execute(executables, directoriesToSearch) {
 
         if (executor === undefined || executor === null || !executor) {
             try {
-                const stdout = await runShellCommand(executableToRun, args, command, executor)
+                const stdout = await runShellCommand(executableToRun, args, command, executor, ...hookArgs)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
             }
         } else if (executableToRun) {
             try {
-                const stdout = await runExecutableCommand(executor, executableToRun, args, command)
+                const stdout = await runExecutableCommand(executor, executableToRun, args, command, ...hookArgs)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
@@ -138,9 +137,9 @@ export default function InjectCommands(options = {}){
     const hookMap = {}
 
     for (const [hook, scriptData] of Object.entries(hooks)) {
-        hookMap[hook] = async () => {
-            await execute(scriptData, paths)
-        }
+        hookMap[hook] = async (...hookArgs) => {
+            await execute(scriptData, paths, hookArgs);
+        };
     }
 
     return {
