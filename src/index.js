@@ -46,9 +46,10 @@ async function findExecutables(executableDirectories, fileList = []) {
  * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runShellCommand(executableToRun, args, command, hookArgs, configString) {
+async function runShellCommand(executableToRun, args, command, hookArgs, config) {
     return new Promise((resolve, reject) => {  // <-- Promise wrapper starts here
         const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
+        const configString = JSON.stringify(config);
         const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
 
         exec(commandString, (error, stdout, stderr) => {
@@ -71,9 +72,10 @@ async function runShellCommand(executableToRun, args, command, hookArgs, configS
  * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runExecutableCommand(executor, executableToRun, args, hookArgs, configString) {
+async function runExecutableCommand(executor, executableToRun, args, hookArgs, config) {
     return new Promise((resolve, reject) => {  // <-- Promise wrapper starts here
         const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
+        const configString = JSON.stringify(config);
         const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
 
         exec(commandString, (error, stdout, stderr) => {
