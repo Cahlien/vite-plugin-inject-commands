@@ -130,7 +130,7 @@ export default function InjectCommands(options = {}){
         throw new Error('Options must be an object')
     }
 
-    const { paths = ['./'], ...hooks } = option
+    const { paths = ['./'], ...hooks } = options
     if (!paths || paths.length === 0) {
         throw new Error('You must specify at least one directory to search for scripts.')
     }
