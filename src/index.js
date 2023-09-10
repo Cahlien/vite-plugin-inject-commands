@@ -49,8 +49,7 @@ async function findExecutables(executableDirectories, fileList = []) {
 async function runShellCommand(executableToRun, args, command, viteConfig, ...hookArgs) {
     return new Promise((resolve, reject) => {
         const hookArgsJSON = JSON.stringify(hookArgs)
-        const configString = JSON.stringify(viteConfig)
-        const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${configString}'`
+        const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${viteConfig}'`
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
@@ -75,8 +74,7 @@ async function runShellCommand(executableToRun, args, command, viteConfig, ...ho
 async function runExecutableCommand(executor, executableToRun, args, viteConfig, ...hookArgs) {
     return new Promise((resolve, reject) => {
         const hookArgsJSON = JSON.stringify(hookArgs)
-        const configString = JSON.stringify(viteConfig)
-        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${configString}'`
+        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${viteConfig}'`
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
