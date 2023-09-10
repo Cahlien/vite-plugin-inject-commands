@@ -125,7 +125,7 @@ async function execute(executables, directoriesToSearch) {
  * @param {Object} [options.hooks] - Hooks and their corresponding script data.
  * @return {Object} - The Vite plugin object.
  */
-export function InjectCommands(options = {}) {
+exports.InjectCommands = (options = {}) => {
     if (typeof options !== 'object') {
         throw new Error('Options must be an object')
     }

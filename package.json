@@ -1,7 +1,6 @@
 {
-  "name": "@cahlien/vite-plugin-inject-commands",
+  "name": "vite-plugin-inject-commands",
   "version": "1.0.0",
-  "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
   "exports": {
