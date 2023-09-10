@@ -1,4 +1,4 @@
-import { exec } from 'child_process'
+import {exec} from 'child_process'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -42,22 +42,20 @@ async function findExecutables(executableDirectories, fileList = []) {
  * @param {string} executableToRun - The executable file to run.
  * @param {string[]} args - The arguments to pass to the executable.
  * @param {string} command - The actual command to run.
- * @param viteConfig
+ * @param configString
  * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runShellCommand(executableToRun, args, command, viteConfig, ...hookArgs) {
-    return new Promise((resolve, reject) => {
-        const hookArgsJSON = JSON.stringify(hookArgs)
-        const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${viteConfig}'`
+async function runShellCommand(executableToRun, args, command, hookArgs, configString) {
+    const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
+    const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
 
-        exec(commandString, (error, stdout, stderr) => {
-            if (error) {
-                reject(`Error: ${error}, stderr: ${stderr}`)
-            } else {
-                resolve(stdout)
-            }
-        })
+    exec(commandString, (error, stdout, stderr) => {
+        if (error) {
+            reject(`Error: ${error}, stderr: ${stderr}`)
+        } else {
+            resolve(stdout)
+        }
     })
 }
 
@@ -67,22 +65,21 @@ async function runShellCommand(executableToRun, args, command, viteConfig, ...ho
  * @param {string} executor - The executor to use (e.g., "python", "node").
  * @param {string} executableToRun - The executable to run.
  * @param {string[]} args - The arguments to pass to the executable.
- * @param viteConfig - The Vite configuration object.
+ * @param configString - The Vite configuration object.
  * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runExecutableCommand(executor, executableToRun, args, viteConfig, ...hookArgs) {
-    return new Promise((resolve, reject) => {
-        const hookArgsJSON = JSON.stringify(hookArgs)
-        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${viteConfig}'`
+async function runExecutableCommand(executor, executableToRun, args, hookArgs, configString) {
+    const hookArgsString = hookArgs.map(arg => JSON.stringify(arg)).join(' ');
+    const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs ${hookArgsString} --config '${configString}'`;
 
-        exec(commandString, (error, stdout, stderr) => {
-            if (error) {
-                reject(`Error: ${error}, stderr: ${stderr}`)
-            } else {
-                resolve(stdout)
-            }
-        })
+
+    exec(commandString, (error, stdout, stderr) => {
+        if (error) {
+            reject(`Error: ${error}, stderr: ${stderr}`)
+        } else {
+            resolve(stdout)
+        }
     })
 }
 
@@ -92,24 +89,24 @@ async function runExecutableCommand(executor, executableToRun, args, viteConfig,
  * @param {Object[]} executables - List of executables to run, each being an object with `command`, `args`, and `executor`.
  * @param {string[]} directoriesToSearch - Directories where to search for the executables.
  * @param hookArgs - The arguments passed by the hook.
- * @param config
+ * @param configString - The Vite configuration object.
  */
-async function execute(executables, directoriesToSearch, hookArgs, config) {
+async function execute(executables, directoriesToSearch, hookArgs, configString) {
     const foundExecutables = await findExecutables(directoriesToSearch)
     console.log(`Config: ${JSON.stringify(config)}`)
-    for (const { command, args, executor } of executables) {
+    for (const {command, args, executor} of executables) {
         const executableToRun = foundExecutables.find((executable) => executable.endsWith(command))
 
         if (executor === undefined || executor === null || !executor) {
             try {
-                const stdout = await runShellCommand(executableToRun, args, command, executor, config, ...hookArgs)
+                const stdout = await runShellCommand(executableToRun, args, command, hookArgs, configString);
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
             }
         } else if (executableToRun) {
             try {
-                const stdout = await runExecutableCommand(executor, executableToRun, args, command, config, ...hookArgs)
+                const stdout = await runExecutableCommand(executor, executableToRun, args, hookArgs, configString)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
@@ -133,7 +130,7 @@ export default function InjectCommands(options = {}) {
         throw new Error('Options must be an object');
     }
 
-    const { paths = ['./'], ...hooks } = options;
+    const {paths = ['./'], ...hooks} = options;
     if (!paths || paths.length === 0) {
         throw new Error('You must specify at least one directory to search for scripts.');
     }
