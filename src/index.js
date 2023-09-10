@@ -47,14 +47,9 @@ async function findExecutables(executableDirectories, fileList = []) {
  */
 async function runShellCommand(executableToRun, args, command, ...hookArgs) {
     return new Promise((resolve, reject) => {
-        const hookArgsStr = hookArgs.map(arg => {
-            if (typeof arg === 'object') {
-                return JSON.stringify(arg);
-            }
-            return arg;
-        }).join(' ');
+        const relevantArgs = hookArgs.map(arg => arg.input).filter(Boolean).join(' ');
+        const commandString = `${command} ${args ? args.join(' ') : ''} ${relevantArgs}`;
 
-        const commandString = `${command} ${args ? args.join(' ') : ''} ${hookArgsStr}`;
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
@@ -77,15 +72,8 @@ async function runShellCommand(executableToRun, args, command, ...hookArgs) {
  */
 async function runExecutableCommand(executor, executableToRun, args, ...hookArgs) {
     return new Promise((resolve, reject) => {
-        const hookArgsStr = hookArgs.map(arg => {
-            if (typeof arg === 'object') {
-                return JSON.stringify(arg);
-            }
-            return arg;
-        }).join(' ');
-
-        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} ${hookArgsStr}`;
-
+        const relevantArgs = hookArgs.map(arg => arg.input).filter(Boolean).join(' ');
+        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} ${relevantArgs}`;
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
