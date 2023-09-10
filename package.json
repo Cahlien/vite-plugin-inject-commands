@@ -1,12 +1,16 @@
 {
   "name": "vite-plugin-inject-commands",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/index.js",
-  "module": "src/index.js",
   "type": "module",
-  "exports": "./src/index.js",
-  "scripts": {
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+"scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
