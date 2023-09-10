@@ -99,14 +99,14 @@ async function execute(executables, directoriesToSearch) {
 
         if (executor === undefined || executor === null || !executor) {
             try {
-                const stdout = await runShellCommand(executableToRun, args, command, executor)
+                const stdout = await runShellCommand(executableToRun, args, command)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
             }
         } else if (executableToRun) {
             try {
-                const stdout = await runExecutableCommand(executor, executableToRun, args, command)
+                const stdout = await runExecutableCommand(executor, executableToRun, args)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
