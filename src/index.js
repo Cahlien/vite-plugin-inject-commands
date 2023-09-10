@@ -98,7 +98,7 @@ async function runExecutableCommand(executor, executableToRun, args, viteConfig,
  */
 async function execute(executables, directoriesToSearch, hookArgs, config) {
     const foundExecutables = await findExecutables(directoriesToSearch)
-
+    console.log(`Config: ${JSON.stringify(config)}`)
     for (const { command, args, executor } of executables) {
         const executableToRun = foundExecutables.find((executable) => executable.endsWith(command))
 
