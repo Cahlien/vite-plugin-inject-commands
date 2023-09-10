@@ -42,13 +42,15 @@ async function findExecutables(executableDirectories, fileList = []) {
  * @param {string} executableToRun - The executable file to run.
  * @param {string[]} args - The arguments to pass to the executable.
  * @param {string} command - The actual command to run.
+ * @param viteConfig
  * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runShellCommand(executableToRun, args, command, ...hookArgs) {
+async function runShellCommand(executableToRun, args, command, viteConfig, ...hookArgs) {
     return new Promise((resolve, reject) => {
         const hookArgsJSON = JSON.stringify(hookArgs)
-        const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}'`
+        const configString = JSON.stringify(viteConfig)
+        const commandString = `${command} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${configString}'`
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
@@ -66,13 +68,15 @@ async function runShellCommand(executableToRun, args, command, ...hookArgs) {
  * @param {string} executor - The executor to use (e.g., "python", "node").
  * @param {string} executableToRun - The executable to run.
  * @param {string[]} args - The arguments to pass to the executable.
+ * @param viteConfig - The Vite configuration object.
  * @param hookArgs - The arguments passed by the hook.
  * @return {Promise<string>} - A promise that resolves with the standard output or rejects with an error message.
  */
-async function runExecutableCommand(executor, executableToRun, args, ...hookArgs) {
+async function runExecutableCommand(executor, executableToRun, args, viteConfig, ...hookArgs) {
     return new Promise((resolve, reject) => {
         const hookArgsJSON = JSON.stringify(hookArgs)
-        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}'`
+        const configString = JSON.stringify(viteConfig)
+        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} --hookArgs '${hookArgsJSON}' --config '${configString}'`
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
@@ -90,8 +94,9 @@ async function runExecutableCommand(executor, executableToRun, args, ...hookArgs
  * @param {Object[]} executables - List of executables to run, each being an object with `command`, `args`, and `executor`.
  * @param {string[]} directoriesToSearch - Directories where to search for the executables.
  * @param hookArgs - The arguments passed by the hook.
+ * @param config
  */
-async function execute(executables, directoriesToSearch, hookArgs) {
+async function execute(executables, directoriesToSearch, hookArgs, config) {
     const foundExecutables = await findExecutables(directoriesToSearch)
 
     for (const { command, args, executor } of executables) {
@@ -99,14 +104,14 @@ async function execute(executables, directoriesToSearch, hookArgs) {
 
         if (executor === undefined || executor === null || !executor) {
             try {
-                const stdout = await runShellCommand(executableToRun, args, command, executor, ...hookArgs)
+                const stdout = await runShellCommand(executableToRun, args, command, executor, config, ...hookArgs)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
             }
         } else if (executableToRun) {
             try {
-                const stdout = await runExecutableCommand(executor, executableToRun, args, command, ...hookArgs)
+                const stdout = await runExecutableCommand(executor, executableToRun, args, command, config, ...hookArgs)
                 console.log(stdout)
             } catch (error) {
                 console.error(error)
@@ -125,27 +130,35 @@ async function execute(executables, directoriesToSearch, hookArgs) {
  * @param {Object} [options.hooks] - Hooks and their corresponding script data.
  * @return {Object} - The Vite plugin object.
  */
-export default function InjectCommands(options = {}){
+export default function InjectCommands(options = {}) {
     if (typeof options !== 'object') {
-        throw new Error('Options must be an object')
+        throw new Error('Options must be an object');
     }
 
-    const { paths = ['./'], ...hooks } = options
+    const { paths = ['./'], ...hooks } = options;
     if (!paths || paths.length === 0) {
-        throw new Error('You must specify at least one directory to search for scripts.')
+        throw new Error('You must specify at least one directory to search for scripts.');
     }
 
-    const hookMap = {}
-
-    for (const [hook, scriptData] of Object.entries(hooks)) {
-        hookMap[hook] = async (...hookArgs) => {
-            console.log("hookArgs:", hookArgs);
-            await execute(scriptData, paths, hookArgs);
-        };
-    }
+    let viteConfig;
 
     return {
         name: 'inject-commands',
-        ...hookMap
-    }
+        configResolved(config) {
+            viteConfig = config;
+        },
+        ...Object.fromEntries(
+            Object.entries(hooks).map(([hook, scriptData]) => [
+                hook,
+                async (...hookArgs) => {
+                    console.log("hookArgs:", hookArgs);
+                    await execute(scriptData, paths, hookArgs, viteConfig);
+                },
+            ])
+        ),
+    };
 }
+
+
+
+
