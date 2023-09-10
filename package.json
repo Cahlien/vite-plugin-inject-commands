@@ -2,11 +2,14 @@
   "name": "vite-plugin-inject-commands",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "exports": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Matthew Crowell",
   "license": "ISC"
 }
