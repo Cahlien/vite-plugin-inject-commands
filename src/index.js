@@ -47,7 +47,15 @@ async function findExecutables(executableDirectories, fileList = []) {
  */
 async function runShellCommand(executableToRun, args, command, ...hookArgs) {
     return new Promise((resolve, reject) => {
-        const commandString = `${command} ${args ? args.join(' ') : ''} ${hookArgs ? hookArgs.join(' ') : ''}`
+        const hookArgsStr = hookArgs.map(arg => {
+            if (typeof arg === 'object') {
+                return JSON.stringify(arg);
+            }
+            return arg;
+        }).join(' ');
+
+        const commandString = `${command} ${args ? args.join(' ') : ''} ${hookArgsStr}`;
+
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
                 reject(`Error: ${error}, stderr: ${stderr}`)
@@ -69,7 +77,15 @@ async function runShellCommand(executableToRun, args, command, ...hookArgs) {
  */
 async function runExecutableCommand(executor, executableToRun, args, ...hookArgs) {
     return new Promise((resolve, reject) => {
-        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} ${hookArgs ? hookArgs.join(' ') : ''}`
+        const hookArgsStr = hookArgs.map(arg => {
+            if (typeof arg === 'object') {
+                return JSON.stringify(arg);
+            }
+            return arg;
+        }).join(' ');
+
+        const commandString = `${executor} ${executableToRun} ${args ? args.join(' ') : ''} ${hookArgsStr}`;
+
 
         exec(commandString, (error, stdout, stderr) => {
             if (error) {
@@ -136,6 +152,7 @@ export default function InjectCommands(options = {}){
 
     for (const [hook, scriptData] of Object.entries(hooks)) {
         hookMap[hook] = async (...hookArgs) => {
+            console.log("hookArgs:", hookArgs);
             await execute(scriptData, paths, hookArgs);
         };
     }
