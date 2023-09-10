@@ -1,26 +1,18 @@
 {
   "name": "vite-plugin-inject-commands",
   "version": "1.0.0",
-  "main": "src/index.js",
-  "module": "src/index.js",
-  "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "require": "./src/index.js"
-    }
-  },
+  "description": "A module to run executables and shell commands during the Vite lifecycle.",
+  "main": "index.js",
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "Matthew Crowell",
-  "license": "ISC",
-  "description": "A plugin for running executables, scripts, or shell commands during the Vite lifecycle.",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Cahlien/vite-plugin-inject-commands.git"
   },
+  "author": "Matthew Crowell",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/Cahlien/vite-plugin-inject-commands/issues"
   },
