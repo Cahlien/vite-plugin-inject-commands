@@ -93,7 +93,7 @@ async function runExecutableCommand(executor, executableToRun, args, hookArgs, c
  */
 async function execute(executables, directoriesToSearch, hookArgs, configString) {
     const foundExecutables = await findExecutables(directoriesToSearch)
-    console.log(`Config: ${JSON.stringify(config)}`)
+    console.log(`Config: ${JSON.stringify(configString)}`)
     for (const {command, args, executor} of executables) {
         const executableToRun = foundExecutables.find((executable) => executable.endsWith(command))
 
