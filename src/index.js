@@ -125,13 +125,12 @@ async function execute(executables, directoriesToSearch) {
  * @param {Object} [options.hooks] - Hooks and their corresponding script data.
  * @return {Object} - The Vite plugin object.
  */
-exports.InjectCommands = (options = {}) => {
+export default function InjectCommands(options = {}){
     if (typeof options !== 'object') {
         throw new Error('Options must be an object')
     }
 
-    const { paths = ['./'], ...hooks } = options
-
+    const { paths = ['./'], ...hooks } = option
     if (!paths || paths.length === 0) {
         throw new Error('You must specify at least one directory to search for scripts.')
     }
