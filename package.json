@@ -2,12 +2,12 @@
   "name": "vite-plugin-inject-commands",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js"
+      "import": "./src/index.js",
+      "require": "./src/index.js"
     }
   },
 "scripts": {
